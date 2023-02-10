@@ -7,70 +7,72 @@
 // #include "avltree.h"
 using namespace std;
 
-//node struct
-struct Node {
+// node struct
+struct Node
+{
     int data;
     int height;
-    Node * left;
-    Node * right;
+    Node *left;
+    Node *right;
 };
 
-Node* makeN(int data)
+Node *makeN(int data)
 {
-    Node* node = new Node();
+    Node *node = new Node();
     node->data = data;
-    node->left = NULL;
-    node->right = NULL;
+    node->left = nullptr;
+    node->right = nullptr;
     node->height = 1;
     return node;
 }
 
-//helper functions for main stuffs
+// helper functions for main stuffs
 int height(Node *node)
 {
-    if (node == NULL)
+    if (node == nullptr)
         return 0;
     return node->height;
 }
 int getBalance(Node *node)
 {
-    if (node == NULL)
+    if (node == nullptr)
         return 0;
     return height(node->left) - height(node->right);
 }
-Node * minvalnode(Node * node)
+Node *minvalnode(Node *node)
 {
-    Node * temp = node;
-    
-    while (temp->left != NULL)
+    Node *temp = node;
+
+    while (temp->left != nullptr)
         temp = temp->left;
 
     return temp;
 }
 
-
-//helper functions for main
-int max(int a, int b){return a > b ? a:b;}
-int stringtoint(string str){return atoi(str.c_str());}
-void printIn(Node * node)
+// helper functions for main
+int max(int a, int b) { return a > b ? a : b; }
+int stringtoint(string str) { return atoi(str.c_str()); }
+void printIn(Node *node)
 {
-    if (node != NULL)
+    if (node != nullptr)
     {
         printIn(node->left);
         cout << node->data << " ";
         printIn(node->right);
     }
 }
-void printPre(Node * node){
-    if(node != NULL)
+void printPre(Node *node)
+{
+    if (node != nullptr)
     {
         cout << node->data << " ";
         printPre(node->left);
         printPre(node->right);
     }
 }
-void printPost(Node * node){
-    if (node != NULL)
+void printPost(Node *node)
+{
+    if (node != nullptr)
     {
         printPost(node->left);
         printPost(node->right);
@@ -78,9 +80,8 @@ void printPost(Node * node){
     }
 }
 
-
-//rotation functions for organisation
-Node *rotateLeft(Node* x)
+// rotation functions for organisation
+Node *rotateLeft(Node *x)
 {
     Node *y = x->right;
     Node *branch = y->left;
@@ -88,144 +89,137 @@ Node *rotateLeft(Node* x)
     y->left = x;
     x->right = branch;
 
-    x->height = 1 + max(height(x->left),height(x->right));
-    y->height = 1 + max(height(y->left),height(y->right));
+    x->height = 1 + max(height(x->left), height(x->right));
+    y->height = 1 + max(height(y->left), height(y->right));
 
-    return y;    
+    return y;
 }
-Node *rotateRight(Node* y)
+Node *rotateRight(Node *y)
 {
     Node *x = y->left;
     Node *branch = x->right;
-    
+
     x->right = y;
     y->left = branch;
 
-    y->height = max(height(y->left),height(y->right)) + 1;
-    x->height = max(height(x->left),height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
 
     return x;
 }
-Node *rotateRightLeft(Node* node)
+Node *rotateRightLeft(Node *node)
 {
     node->right = rotateRight(node->right);
     return rotateLeft(node);
 }
-Node *rotateLeftRight(Node* node)
+Node *rotateLeftRight(Node *node)
 {
     node->left = rotateLeft(node->left);
     return rotateRight(node);
 }
 
-
-//binary insertion
-Node *insert(Node * node, int data)
+// binary insertion
+Node *insert(Node *node, int data)
 {
-    //creates tree head
-    if(node == NULL) 
+    // creates tree head
+    if (node == nullptr)
         return (makeN(data));
 
     /* typical recursive binary insertion */
-    //go left
+    // go left
     if (data < node->data)
         node->left = insert(node->left, data);
-    //go right
+    // go right
     else if (data > node->data)
         node->right = insert(node->right, data);
     else // Equal keys not allowed
         return node;
 
     // update height before organisation
-    node->height = 1 + max(height(node->left),height(node->right));
+    node->height = 1 + max(height(node->left), height(node->right));
 
     // balance is needed for organisation method
-    int b = getBalance(node);
-    int lb = getBalance(node->left);
-    int rb = getBalance(node->right);
+    int balance = getBalance(node);
 
-    // right right case
-    if (b==2 && lb==1)
+    if (balance > 1 and data > node->right->data) // right
         return rotateRight(node);
-    //left left rotation
-    else if (b==-2 && rb==-1)
+    if (balance < -1 and data < node->left->data) // left
         return rotateLeft(node);
-    //left right rotation
-    else if (b==-2 && lb==1) 
+    if (balance > 1 and data > node->left->data) // right left
         return rotateRightLeft(node);
-    // right left rotation
-    else if (b==2 && lb==-1)
+    if (balance < -1 && data < node->right->data) // left right
         return rotateLeftRight(node);
-    
+
     return node;
 }
 
-
-//delete from bst
-Node *remove(Node * curr, int val)
+// delete from avl tree
+Node *remove(Node *root, int data)
 {
-    //already been removed/never existed
-    if (curr==NULL) return curr;
+    // already been removed/never existed
+    if (root == nullptr)
+        return root;
 
-    //go left recursively
-    if (val < curr->data)
-        curr->left = remove(curr->left,val);
-    //go right recursively
-    else if (val > curr->data)
-        curr->right = remove(curr->right,val);
+    // go left recursively
+    if (data < root->data)
+        root->left = remove(root->left, data);
+    // go right recursively
+    else if (data > root->data)
+        root->right = remove(root->right, data);
 
     else
     {
-        if ((curr->left == NULL)||curr->right == NULL)
+        if ((root->left == nullptr) || root->right == nullptr)
         {
-            Node* temp = curr->left ? curr->left : curr->right;
+            Node *temp = root->left ? root->left : root->right;
 
-            if (temp == NULL)
+            if (temp == nullptr)
             {
-                temp = curr;
-                curr = NULL;
+                temp = root;
+                root = nullptr;
             }
-            else *curr = *temp;
-            free(temp);
+            else
+                *root = *temp;
+            delete temp; // created with new so delete, don't free()
         }
-        else {
-            Node * temp = minvalnode(curr->right);
-            curr->data = temp->data;
-            curr->right = remove(curr->right, temp->data);
+        else
+        {
+            Node *temp = minvalnode(root->right);
+            root->data = temp->data;
+            root->right = remove(root->right, temp->data);
         }
     }
-    //case where tree had no children but root node
-    if (curr==NULL)
-        return curr;
+    // case where tree had no children but root node
+    if (root == nullptr)
+        return root;
 
-    curr->height = 1 + max(height(curr->left),height(curr->right));
+    root->height = 1 + max(height(root->left), height(root->right));
 
     // balance is needed for organisation method
-    int b = getBalance(curr);
-    int lb = getBalance(curr->left);
-    int rb = getBalance(curr->right);
+    int balance = getBalance(root);
+    int leftBalance = getBalance(root->left);
+    int rightBalance = getBalance(root->right);
+
 
     // right right case
-    if (b==2 && lb==1)
-        return rotateRight(curr);
-    //left left rotation
-    else if (b==-2 && rb==-1)
-        return rotateLeft(curr);
-    //left right rotation
-    else if (b==-2 && lb==1) 
-        return rotateRightLeft(curr);
-    // right left rotation
-    else if (b==2 && lb==-1)
-        return rotateLeftRight(curr);
-    
-    return curr;
+    if (balance > 1 and leftBalance >=0)
+        return rotateRight(root);
+    if (balance == -2 and rightBalance <= 0)
+        return rotateLeft(root);
+    if (balance == -2 and leftBalance < 0)
+        return rotateRightLeft(root);
+    if (balance == 2 and rightBalance > 0)
+        return rotateLeftRight(root);
+
+    return root;
 }
 
-void createTree (int * a, int * d, int la, int ld)
+void createTree(int *a, int *d, int la, int ld)
 {
-    Node * head = NULL;
+    Node *head = nullptr;
 
     for (int i = 0; i < la; i++)
-        head = insert(head, *(a+i));
+        head = insert(head, *(a + i));
 
     cout << "PRE Order: " << endl;
     printPre(head);
@@ -236,7 +230,7 @@ void createTree (int * a, int * d, int la, int ld)
     cout << endl;
 
     for (int i = 0; i < ld; i++)
-        head = remove(head, *(d+i));
+        head = remove(head, *(d + i));
 
     cout << "PRE Order: " << endl;
     printPre(head);
@@ -247,13 +241,13 @@ void createTree (int * a, int * d, int la, int ld)
     cout << endl;
 }
 
-int main (void)
+int main(void)
 {
     string str = "";
-    getline(cin,str);
+    getline(cin, str);
 
-    Node * head = NULL;
-    // int a [] = 
+    Node *head = nullptr;
+    // int a [] =
     // {
     //     66, 24, 39, 93,
     //     64, 90, 94, 96,
@@ -264,51 +258,52 @@ int main (void)
     //     15, 54, 33, 26,
     //     62, 25, 17, 81
     // };
-    // int d [] = 
+    // int d [] =
     // {
     //     89, 19, 64, 21,
     //     58, 17, 50, 93
     // };
- 
+
     // createTree(a, d, 32, 8);
 
     istringstream split(str);
     vector<std::string> tokens;
-    for (std::string each; getline(split, each, ' '); tokens.push_back(each));
+    for (std::string each; getline(split, each, ' '); tokens.push_back(each))
+        ;
 
-    for (size_t i = 0; i < tokens.size()-1; i++)
+    for (size_t i = 0; i < tokens.size() - 1; i++)
     {
         int length = tokens[i].length();
 
-        if (tokens[i].at(0)=='D')
-            head = remove(  head, stringtoint( tokens[i].substr(1,length) )  );
-        else if (tokens[i].at(0)=='A')
-            head = insert(  head, stringtoint( tokens[i].substr(1,length) )  );
+        if (tokens[i].at(0) == 'D')
+            head = remove(head, stringtoint(tokens[i].substr(1, length)));
+        else if (tokens[i].at(0) == 'A')
+            head = insert(head, stringtoint(tokens[i].substr(1, length)));
         else
             exit(EXIT_FAILURE);
     }
 
-    if (head == NULL)
+    if (head == nullptr)
     {
         cout << "EMPTY" << endl;
         return 0;
     }
 
-    switch ((int)( tokens[tokens.size()-1].length() ))
+    switch ((int)(tokens[tokens.size() - 1].length()))
     {
     case 2:
         cout << "IN\node";
-        printIn( head );
+        printIn(head);
         break;
     case 3:
         cout << "PRE\node";
-        printPre( head );
+        printPre(head);
         break;
     case 4:
         cout << "POST\node";
-        printPost( head );
+        printPost(head);
         break;
-    
+
     default:
         exit(EXIT_FAILURE);
     }
