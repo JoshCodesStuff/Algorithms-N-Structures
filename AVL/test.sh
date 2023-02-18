@@ -25,14 +25,4 @@ do :
     printf "\nResult of $test:\n";
     read -r out $output;
     read -r driver $compare;
-
-    echo "$out"
-    echo "$driver"
-
-    # if [ $out != $driver ];
-    # then
-    #     echo -e "\e[1;31;101mTEST FAILED\e[0m"
-    # else
-    #     echo -e "\e[1;32;102mTEST PASSED\e[0m"
-    # fi;
 done
